@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .card {
+    @apply bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg;
+  }
+  
+  .status-badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-online {
+    @apply bg-emerald-500/10 text-emerald-500 border border-emerald-500/20;
+  }
+  
+  .status-offline {
+    @apply bg-rose-500/10 text-rose-500 border border-rose-500/20;
+  }
+
+  .status-unknown {
+    @apply bg-amber-500/10 text-amber-500 border border-amber-500/20;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-950;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full hover:bg-slate-700;
+}
