@@ -1,69 +1,134 @@
-# 📡 NetWatch AI - Advanced Network Monitoring Dashboard
+# 📡 NetWatch AI: Advanced Network Intelligence & Monitoring
 
-NetWatch AI is a powerful, full-stack network monitoring and security analysis platform. It provides real-time visibility into your local network, identifying connected devices, monitoring their status, and offering deep security inspection via integrated Nmap capabilities.
+NetWatch AI is a professional-grade, full-stack network monitoring and security analysis platform. It combines real-time device discovery with the power of **Nmap** to provide deep insights into network topography, service exposure, and security vulnerabilities.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600.png?text=NetWatch+AI+Dashboard+Preview)
+---
 
-## 🚀 Key Features
+## 📑 Table of Contents
+- [Project Overview](#-project-overview)
+- [System Architecture](#-system-architecture)
+- [How It Works](#-how-it-works)
+- [Key Features](#-key-features)
+- [Detailed Scan Profiles](#-detailed-scan-profiles)
+- [Tech Stack](#-tech-stack)
+- [Installation Guide](#-installation-guide)
+- [Security & Safety](#-security--safety)
 
-### 1. Real-Time Network Monitoring
-*   **Automatic Discovery**: Identifies all active hosts on your private network using hybrid ARP/Ping methods.
-*   **Device Identification**: Automatically determines device types (Mobile, Computer, Router, IoT) and identifies manufacturers via MAC vendor lookups.
-*   **Live Stats**: Dashboard overview of total devices, online status, and security alerts.
+---
 
-### 2. Advanced Nmap Integration
-*   **Deep Scan Center**: A dedicated analysis interface for individual devices.
-*   **6 Scan Profiles**:
-    *   **Quick Scan**: Fast port discovery.
-    *   **Standard Scan**: Service and version detection.
-    *   **Full Scan**: Scans all 65,535 ports.
-    *   **OS Detection**: Fingerprints the device operating system.
-    *   **Vulnerability Scan**: Runs NSE scripts to detect security risks.
-    *   **Traceroute**: Maps the network path to the target.
-*   **History Engine**: Stores and retrieves previous scan results for longitudinal monitoring.
+## 🎯 Project Overview
+The primary goal of NetWatch AI is to provide network administrators and security researchers with a centralized, visual dashboard to monitor local network health. Built on top of the industry-standard **Nmap** engine, it moves beyond simple "up/down" monitoring to provide deep packet-level intelligence.
 
-### 3. Analytics & Visualization
-*   **Device Distribution**: Visual charts showing the breakdown of device types and top vendors.
-*   **Service Analysis**: Detailed table views of open ports, protocols, and version info.
-*   **Security Audit**: Heuristics to identify "Unknown" or potentially vulnerable devices.
+## 🏗 System Architecture
 
-## 🛠️ Technical Stack
+```mermaid
+graph TD
+    User((User)) -->|Browser| Frontend[Angular Dashboard]
+    Frontend -->|REST API| Backend[Node.js / Express]
+    Backend -->|Child Process| ARP[ARP Scanner]
+    Backend -->|Child Process| Nmap[Nmap Engine]
+    Backend -->|External API| VendorAPI[MacVendors API]
+    Backend -->|Local Storage| History[Scan History JSON]
+    Backend -->|Internal| Cache[Node-Cache]
+```
 
-*   **Frontend**: Angular 21+, Tailwind CSS, Lucide Icons, Chart.js.
-*   **Backend**: Node.js, Express, Axios, Node-Cache.
-*   **Core Engine**: Nmap (National Mapper), ARP Utilities.
+## ⚙️ How It Works
 
-## 📦 Installation & Setup
+### 1. Network Discovery (The Pulse)
+The backend periodically triggers an `arp -a` command. This native utility maps IP addresses to Physical (MAC) addresses currently active in the ARP table.
+*   **Enrichment**: Each discovered MAC address is sent to a vendor lookup service to determine the manufacturer (e.g., Apple, Cisco, Sony).
+*   **Heuristics**: Based on vendor strings and hostnames, the system intelligently categorizes devices (e.g., "TP-Link" -> "Router").
+
+### 2. Advanced Scanning (The Deep Dive)
+When a user selects **Advanced Scan**, the `NmapManager` module takes over:
+*   **Scan Queuing**: To prevent system saturation and high CPU usage, all Nmap scans are queued and executed sequentially.
+*   **XML Orchestration**: Nmap is executed with the `-oX -` flag. This directs the engine to output results in XML format, which the backend then parses using `xml2js` to extract granular data about ports, service versions, and OS fingerprints.
+*   **Temporal Logging**: Every scan is timestamped and saved. This allows the frontend to show changes in a device's security posture over time.
+
+## ✨ Key Features
+
+### 🖥 Premium Dashboard
+*   **Dynamic Analytics**: Real-time charts showing device distribution and top vendors.
+*   **Live Status Monitoring**: Instant feedback on device online/offline states.
+*   **Global Search**: Filter through hundreds of devices by IP, MAC, or Vendor instantly.
+
+### 🛡 Scan Center (Nmap Integrated)
+*   **Service Versioning**: Identifies exactly what software is running (e.g., `Apache 2.4.41` on port 80).
+*   **Vulnerability Detection**: Leverages Nmap Scripting Engine (NSE) to find common security holes.
+*   **OS Fingerprinting**: High-accuracy guesses of the device's operating system based on TCP/IP stack behavior.
+*   **Path Mapping**: Standalone **Traceroute** to visualize internal routing hops.
+
+## 🔍 Detailed Scan Profiles
+
+| Profile | Command | Use Case |
+| :--- | :--- | :--- |
+| **Quick** | `-F` | 100 most common ports. Fast and stealthy. |
+| **Standard** | `-sV` | Port scan + Service/Version detection. |
+| **Full** | `-p-` | Scans all 65,535 ports. Finds hidden services. |
+| **OS Detection**| `-O` | Identifies OS (requires root/admin). |
+| **Vuln** | `--script vuln` | Checks for known CVEs and misconfigurations. |
+| **Aggressive** | `-A` | OS detection, Versioning, Script scanning, and Traceroute. |
+
+## 💻 Tech Stack
+
+### Frontend
+- **Framework**: Angular 21 (Standalone Components)
+- **Styling**: Tailwind CSS (Premium Dark Theme)
+- **Icons**: Lucide-Angular
+- **Charts**: Chart.js
+
+### Backend
+- **Environment**: Node.js / Express
+- **Networking**: `child_process` execution of system binaries.
+- **Parsing**: `xml2js` for Nmap XML output.
+- **Caching**: `node-cache` (Memory-based).
+
+---
+
+## 🚀 Installation Guide
 
 ### Prerequisites
-*   **Node.js**: v18+ recommended.
-*   **Nmap**: **Mandatory** for Advanced Scanning. Download from [nmap.org](https://nmap.org/download.html) and ensure it's in your system PATH.
+1.  **Node.js** (LTS version)
+2.  **Nmap**: [Download Here](https://nmap.org/download.html). Ensure `nmap` is added to your environment variables (System PATH).
 
-### 1. Backend Setup
+### 1. Clone & Install Dependencies
+```bash
+git clone https://github.com/YOUR_USER/wifi-tracker.git
+cd wifi-tracker
+```
+
+### 2. Backend Configuration
+Navigate to the `backend` folder and create a `.env` file:
+```env
+PORT=3000
+NETWORK_RANGE=192.168.1.0/24  # Change to your subnet
+CACHE_DURATION=30             # Cache scans for 30s
+```
+Install and run:
 ```bash
 cd backend
 npm install
-# Create a .env file with:
-# PORT=3000
-# NETWORK_RANGE=192.168.1.0/24
-# CACHE_DURATION=10
 node index.js
 ```
 
-### 2. Frontend Setup
+### 3. Frontend Configuration
+Navigate to the `frontend` folder:
 ```bash
 cd frontend
 npm install
 ng serve
 ```
-Open `http://localhost:4200` in your browser.
 
-## 🔒 Security & Best Practices
-*   **Privacy**: This tool is designed for **private networks only** (RFC 1918). It includes built-in filters to block scanning of external/public IPs.
-*   **Responsibility**: Always ensure you have permission to scan the network you are monitoring.
+## 🔒 Security & Safety
+NetWatch AI is built for **Ethical Network Analysis**.
+*   **Private Range Lock**: The backend validates all targets. If a target is outside the private IP range (RFC 1918), the scan is blocked to prevent external scanning.
+*   **No Root Required (Mostly)**: Standard scans work without elevated privileges. Advanced features like OS Detection may require running the backend terminal as **Administrator**.
+*   **Rate Limiting**: Integrated delays between vendor lookups to avoid API blacklisting.
 
-## 📄 License
+---
+
+## ⚖️ License
 This project is licensed under the ISC License.
 
 ---
-*Created with ❤️ by Antigravity AI*
+*Developed for advanced network transparency.*
